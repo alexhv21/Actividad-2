@@ -1,135 +1,174 @@
 /**
- * utileria.js — Librería de validaciones y utilidades (JS puro, sin dependencias).
- * Las fechas se reciben como "AAAA-MM-DD" (valor de <input type="date">) u objeto Date.
+ * Utileria.js - Librería funcional de validaciones y utilidades (JS Vanilla puro).
  */
 
-/** Convierte a Date local (sin desfase de zona horaria). Devuelve null si es inválida. */
-function _parseFecha(f) {
-  if (f instanceof Date) return isNaN(f) ? null : new Date(f.getFullYear(), f.getMonth(), f.getDate());
-  if (typeof f !== "string") return null;
-  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(f.trim());
-  if (!m) return null;
-  const [, y, mo, d] = m.map(Number);
-  const fecha = new Date(y, mo - 1, d);
-  return fecha.getFullYear() === y && fecha.getMonth() === mo - 1 && fecha.getDate() === d ? fecha : null;
-}
-
 /**
- * Valida el formato de un correo electrónico.
- * @param {string} correo
- * @returns {boolean} true si tiene formato usuario@dominio.ext
- * @example validarCorreo("ana@mail.com"); // true
- * @example validarCorreo("ana@mail");     // false
+ * Valida si una cadena cumple con el formato estándar de correo electrónico.
+ * @param {string} correo - Texto a evaluar.
+ * @returns {boolean} True si es válido, false en caso contrario.
  */
 function validarCorreo(correo) {
-  return typeof correo === "string" &&
-    /^[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}$/.test(correo.trim());
+    if (typeof correo !== 'string') return false;
+    const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    return regex.test(correo.trim());
 }
 
 /**
- * Verifica que el texto contenga solo letras (mayúsculas/minúsculas, vocales acentuadas, ü y ñ).
- * No acepta espacios, números ni símbolos.
- * @param {string} texto
- * @returns {boolean}
- * @example soloLetras("José"); // true
- * @example soloLetras("Ana2"); // false
+ * Valida que una cadena contenga únicamente letras (incluye espacios, acentos y eñes).
+ * @param {string} texto - Texto a evaluar.
+ * @returns {boolean} True si contiene solo letras, false en caso contrario.
  */
 function soloLetras(texto) {
-  return typeof texto === "string" && /^[A-Za-zÁÉÍÓÚÜáéíóúüÑñ]+$/.test(texto);
+    if (typeof texto !== 'string' || texto.trim().length === 0) return false;
+    const regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
+    return regex.test(texto);
 }
 
 /**
- * Valida que un número entero positivo (o cadena de dígitos) no exceda cierta longitud.
- * @param {number|string} numero
- * @param {number} maxLongitud máximo de dígitos permitidos
- * @returns {boolean} true si son solo dígitos y su longitud es <= maxLongitud
- * @example validarLongitud(5512345678, 10); // true
- * @example validarLongitud(123456, 4);      // false
+ * Valida que la cantidad de dígitos de un número no exceda la longitud máxima indicada.
+ * @param {number|string} numero - Número o cadena numérica a evaluar.
+ * @param {number} maxLongitud - Longitud máxima permitida de dígitos.
+ * @returns {boolean} True si no excede maxLongitud y es numérico, false en caso contrario.
  */
 function validarLongitud(numero, maxLongitud) {
-  if (!Number.isInteger(maxLongitud) || maxLongitud < 1) return false;
-  const t = String(numero).trim();
-  return /^\d+$/.test(t) && t.length <= maxLongitud;
+    if (numero === null || numero === undefined || maxLongitud <= 0) return false;
+    const strNum = String(numero).trim();
+    if (!/^\d+$/.test(strNum)) return false;
+    return strNum.length <= maxLongitud;
 }
 
 /**
- * Calcula la edad en años cumplidos.
- * @param {string|Date} fechaNacimiento "AAAA-MM-DD" o Date
- * @returns {number} edad entera; -1 si la fecha es inválida
- * @example calcularEdad("2000-05-20"); // 26 (según la fecha actual)
+ * Calcula la edad en años cumplidos a partir de una fecha de nacimiento.
+ * @param {string|Date} fechaNacimiento - Fecha en formato 'YYYY-MM-DD' o instancia Date.
+ * @returns {number} Número entero de años cumplidos (retorna -1 si la fecha es inválida).
  */
 function calcularEdad(fechaNacimiento) {
-  const nac = _parseFecha(fechaNacimiento);
-  if (!nac) return -1;
-  const hoy = new Date();
-  let edad = hoy.getFullYear() - nac.getFullYear();
-  const dm = hoy.getMonth() - nac.getMonth();
-  if (dm < 0 || (dm === 0 && hoy.getDate() < nac.getDate())) edad--;
-  return edad;
+    const nacimiento = new Date(fechaNacimiento);
+    if (isNaN(nacimiento.getTime())) return -1;
+
+    const hoy = new Date();
+    let edad = hoy.getFullYear() - nacimiento.getFullYear();
+    const mesDif = hoy.getMonth() - nacimiento.getMonth();
+    const diaDif = hoy.getDate() - nacimiento.getDate();
+
+    if (mesDif < 0 || (mesDif === 0 && diaDif < 0)) {
+        edad--;
+    }
+    return edad >= 0 ? edad : -1;
 }
 
 /**
- * Indica si la persona tiene 18 años o más.
- * @param {string|Date} fechaNacimiento
- * @returns {boolean} false si es menor o la fecha es inválida
- * @example esMayorDeEdad("2015-01-01"); // false
+ * Valida si una persona tiene 18 años o más con base en su fecha de nacimiento.
+ * @param {string|Date} fechaNacimiento - Fecha de nacimiento.
+ * @returns {boolean} True si tiene 18 o más años, false en caso contrario.
  */
 function esMayorDeEdad(fechaNacimiento) {
-  return calcularEdad(fechaNacimiento) >= 18;
+    const edad = calcularEdad(fechaNacimiento);
+    return edad >= 18;
 }
 
 /**
- * Valida una contraseña: mínimo 8 caracteres, con mayúscula, minúscula, número y carácter especial.
- * @param {string} password
- * @returns {boolean}
- * @example validarPassword("Hola#2026"); // true
- * @example validarPassword("hola1234");  // false
+ * Valida que la contraseña cumpla con políticas de seguridad:
+ * Mínimo 8 caracteres, al menos una mayúscula, una minúscula, un número y un carácter especial.
+ * @param {string} password - Contraseña a evaluar.
+ * @returns {boolean} True si cumple todos los requisitos, false en caso contrario.
  */
 function validarPassword(password) {
-  return typeof password === "string" && password.length >= 8 &&
-    /[A-Z]/.test(password) && /[a-z]/.test(password) &&
-    /\d/.test(password) && /[^A-Za-z0-9\s]/.test(password);
+    if (typeof password !== 'string' || password.length < 8) return false;
+    const tieneMayuscula = /[A-Z]/.test(password);
+    const tieneMinuscula = /[a-z]/.test(password);
+    const tieneNumero = /\d/.test(password);
+    const tieneEspecial = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
+
+    return tieneMayuscula && tieneMinuscula && tieneNumero && tieneEspecial;
 }
 
-/* ---------- Sección libre (usadas en el registro) ---------- */
+/* ==========================================================================
+   Sección Libre — Nuevas funciones solicitadas
+   ========================================================================== */
 
 /**
- * Evalúa la fortaleza de una contraseña sumando puntos por longitud (8 y 12+),
- * mezcla de mayúsculas/minúsculas, números y símbolos.
- * @param {string} password
- * @returns {string} "ninguna" | "baja" | "media" | "alta"
- * @example nivelPassword("hola");          // "baja"
- * @example nivelPassword("Hola#2026");     // "media"
- * @example nivelPassword("Hola#2026Abcd"); // "alta"
+ * Evalúa el nivel de seguridad de una contraseña y retorna un diagnóstico cualitativo y numérico.
+ * @param {string} password - Cadena de la contraseña.
+ * @returns {{nivel: string, puntaje: number, sugerencias: string[]}} Objeto con nivel ('Débil', 'Media', 'Fuerte'), puntaje (0-100) y sugerencias de mejora.
  */
-function nivelPassword(password) {
-  if (typeof password !== "string" || password === "") return "ninguna";
-  let p = 0;
-  if (password.length >= 8) p++;
-  if (password.length >= 12) p++;
-  if (/[A-Z]/.test(password) && /[a-z]/.test(password)) p++;
-  if (/\d/.test(password)) p++;
-  if (/[^A-Za-z0-9\s]/.test(password)) p++;
-  return p <= 2 ? "baja" : p <= 4 ? "media" : "alta";
+function evaluarSeguridadPassword(password) {
+    if (typeof password !== 'string' || password.length === 0) {
+        return { nivel: 'Invalida', puntaje: 0, sugerencias: ['Ingresa una contraseña'] };
+    }
+
+    let puntaje = 0;
+    const sugerencias = [];
+
+    // Criterio de longitud
+    if (password.length >= 8) puntaje += 25;
+    else sugerencias.push('Usa al menos 8 caracteres');
+
+    if (password.length >= 12) puntaje += 15;
+
+    // Criterios de composición
+    if (/[a-z]/.test(password)) puntaje += 15;
+    else sugerencias.push('Agrega letras minúsculas');
+
+    if (/[A-Z]/.test(password)) puntaje += 15;
+    else sugerencias.push('Agrega letras mayúsculas');
+
+    if (/\d/.test(password)) puntaje += 15;
+    else sugerencias.push('Agrega números');
+
+    if (/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) puntaje += 15;
+    else sugerencias.push('Agrega símbolos o caracteres especiales');
+
+    // Determinar etiqueta
+    let nivel = 'Débil';
+    if (puntaje >= 75) {
+        nivel = 'Fuerte';
+    } else if (puntaje >= 50) {
+        nivel = 'Media';
+    }
+
+    return {
+        nivel: nivel,
+        puntaje: Math.min(puntaje, 100),
+        sugerencias: sugerencias
+    };
 }
 
 /**
- * Genera un nombre de usuario: inicial del nombre + primer apellido,
- * en minúsculas y sin acentos, ñ ni símbolos.
- * @param {string} nombre
- * @param {string} apellido
- * @returns {string} usuario sugerido; "" si falta algún dato
- * @example generarUsuario("José Luis", "Pérez Núñez"); // "jperez"
+ * Genera un nombre de usuario normalizado a partir de nombre(s) y apellido(s), 
+ * eliminando diacríticos/acentos y caracteres extraños, añadiendo un sufijo numérico aleatorio.
+ * Ejemplo: "Alexis Hernández" -> "ahernandez74"
+ * @param {string} nombreCompleto - Nombre y apellidos de la persona.
+ * @returns {string} Nombre de usuario sugerido en minúsculas y sin acentos.
  */
-function generarUsuario(nombre, apellido) {
-  const limpiar = t => typeof t !== "string" ? "" :
-    (t.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase()
-      .replace(/[^a-z\s]/g, "").trim().split(/\s+/)[0] || "");
-  const n = limpiar(nombre), a = limpiar(apellido);
-  return n && a ? n.charAt(0) + a : "";
-}
+function generarNombreUsuario(nombreCompleto) {
+    if (typeof nombreCompleto !== 'string' || nombreCompleto.trim().length === 0) {
+        return '';
+    }
 
-if (typeof module !== "undefined" && module.exports) {
-  module.exports = { validarCorreo, soloLetras, validarLongitud, calcularEdad,
-    esMayorDeEdad, validarPassword, nivelPassword, generarUsuario };
+    // Normalizar texto eliminando tildes y caracteres especiales
+    const normalizado = nombreCompleto
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .trim();
+
+    const partes = normalizado.split(/\s+/);
+
+    let base = '';
+    if (partes.length === 1) {
+        base = partes[0].slice(0, 8);
+    } else {
+        const inicialNombre = partes[0].charAt(0);
+        const primerApellido = partes[1];
+        base = `${inicialNombre}${primerApellido}`;
+    }
+
+    // Limpiar caracteres que no sean alfanuméricos
+    base = base.replace(/[^a-z0-9]/g, '');
+
+    // Generar sufijo numérico de 2 dígitos (10 a 99)
+    const numeroRandom = Math.floor(10 + Math.random() * 90);
+
+    return `${base}${numeroRandom}`;
 }

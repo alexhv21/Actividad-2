@@ -1,65 +1,101 @@
-// Lógica del formulario de registro (index.html). Usa js/utileria.js.
-const $ = id => document.getElementById(id);
-const nombreValido = v => v.trim().split(/\s+/).every(soloLetras);
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('registroForm');
+    const inputNombre = document.getElementById('nombre');
+    const inputUsuario = document.getElementById('usuarioSugerido');
+    const inputPassword = document.getElementById('password');
+    const seguridadTexto = document.getElementById('seguridadPassword');
 
-const reglas = {
-  nombre:     v => nombreValido(v) || "Solo letras (se aceptan acentos).",
-  apellido:   v => nombreValido(v) || "Solo letras (se aceptan acentos).",
-  correo:     v => validarCorreo(v) || "Escribe un correo válido, como nombre@mail.com.",
-  telefono:   v => (validarLongitud(v, 10) && v.length === 10) || "Escribe 10 dígitos, sin espacios.",
-  nacimiento: v => (calcularEdad(v) >= 0 && calcularEdad(v) < 120) || "Elige una fecha de nacimiento válida.",
-  password:   v => validarPassword(v) || "Mínimo 8 caracteres con mayúscula, minúscula, número y símbolo."
-};
+    const modal = document.getElementById('modalEdad');
+    const modalMensaje = document.getElementById('modalMensaje');
+    const btnIrLogin = document.getElementById('btnIrLogin');
+    const btnCerrarModal = document.getElementById('btnCerrarModal');
 
-function actualizarLogin() {
-  const mayor = esMayorDeEdad($("nacimiento").value);
-  $("btnLogin").disabled = !mayor;
-  $("avisoLogin").textContent = $("nacimiento").value && !mayor
-    ? "Debes ser mayor de edad para ir al login."
-    : "El acceso al login se habilita solo para mayores de edad.";
-}
+    let usuarioEsMayor = false;
 
-function actualizarUsuario() {
-  $("usuario").value = generarUsuario($("nombre").value, $("apellido").value);
-}
+    // Generar sugerencia de usuario al desenfocar o escribir en el nombre
+    inputNombre.addEventListener('blur', () => {
+        const nombreVal = inputNombre.value;
+        if (soloLetras(nombreVal)) {
+            inputUsuario.value = generarNombreUsuario(nombreVal);
+        }
+    });
 
-function actualizarNivel() {
-  const n = nivelPassword($("password").value);
-  $("nivelPass").className = "nivel " + n;
-  $("nivelPass").textContent = n === "ninguna" ? "" : "Fortaleza: " + n;
-}
+    // Evaluar seguridad de la contraseña en tiempo real
+    inputPassword.addEventListener('input', () => {
+        const pass = inputPassword.value;
+        if (pass.length === 0) {
+            seguridadTexto.textContent = '';
+            seguridadTexto.className = 'info-text';
+            return;
+        }
 
-function cerrarModal() { $("modal").hidden = true; }
+        const res = evaluarSeguridadPassword(pass);
+        seguridadTexto.textContent = `Nivel: ${res.nivel} (${res.puntaje}/100)`;
+        
+        seguridadTexto.className = 'info-text';
+        if (res.nivel === 'Débil') seguridadTexto.classList.add('seg-debil');
+        if (res.nivel === 'Media') seguridadTexto.classList.add('seg-media');
+        if (res.nivel === 'Fuerte') seguridadTexto.classList.add('seg-fuerte');
+    });
 
-$("nombre").addEventListener("input", actualizarUsuario);
-$("apellido").addEventListener("input", actualizarUsuario);
-$("password").addEventListener("input", actualizarNivel);
-$("nacimiento").addEventListener("input", actualizarLogin);
-$("btnLogin").addEventListener("click", () => {
-  if (esMayorDeEdad($("nacimiento").value)) location.href = "login.html";
+    // Envío y validación completa del formulario
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const nombreVal = inputNombre.value;
+        const correoVal = document.getElementById('correo').value;
+        const matVal = document.getElementById('matricula').value;
+        const fechaVal = document.getElementById('fechaNac').value;
+        const passVal = inputPassword.value;
+
+        let esValido = true;
+
+        esValido = setEstado('err-nombre', soloLetras(nombreVal)) && esValido;
+        esValido = setEstado('err-correo', validarCorreo(correoVal)) && esValido;
+        esValido = setEstado('err-matricula', validarLongitud(matVal, 8)) && esValido;
+        esValido = setEstado('err-password', validarPassword(passVal)) && esValido;
+
+        const edad = calcularEdad(fechaVal);
+        if (edad === -1) {
+            setEstado('err-fechaNac', false);
+            esValido = false;
+        } else {
+            setEstado('err-fechaNac', true);
+        }
+
+        if (!esValido) return;
+
+        usuarioEsMayor = esMayorDeEdad(fechaVal);
+
+        if (usuarioEsMayor) {
+            modalMensaje.textContent = `Tienes ${edad} años. Cumples con la mayoría de edad para continuar al sistema.`;
+            btnIrLogin.style.display = 'block';
+        } else {
+            modalMensaje.textContent = `Tienes ${edad} años. Registro no autorizado para menores de edad.`;
+            btnIrLogin.style.display = 'none';
+        }
+
+        modal.classList.add('open');
+    });
+
+    function setEstado(idElementoError, condicionValida) {
+        const errorEl = document.getElementById(idElementoError);
+        if (condicionValida) {
+            errorEl.classList.remove('active');
+            return true;
+        } else {
+            errorEl.classList.add('active');
+            return false;
+        }
+    }
+
+    btnIrLogin.addEventListener('click', () => {
+        if (usuarioEsMayor) {
+            window.location.href = 'login.html';
+        }
+    });
+
+    btnCerrarModal.addEventListener('click', () => {
+        modal.classList.remove('open');
+    });
 });
-
-$("registro").addEventListener("submit", e => {
-  e.preventDefault();
-  let ok = true;
-  for (const campo in reglas) {
-    const r = reglas[campo]($(campo).value);
-    $("e-" + campo).textContent = r === true ? "" : r;
-    $(campo).classList.toggle("bad", r !== true);
-    if (r !== true) ok = false;
-  }
-  actualizarLogin();
-  if (!ok) return;
-  const f = $("nacimiento").value;
-  $("mSaludo").textContent = "Hola, " + $("nombre").value.trim() + ". Tu usuario es " + $("usuario").value + " y tu edad es:";
-  $("mEdad").textContent = calcularEdad(f) + " años";
-  $("mDetalle").textContent = esMayorDeEdad(f)
-    ? "Eres mayor de edad: ya puedes ir al login."
-    : "Eres menor de edad: no puedes acceder al login.";
-  $("modal").hidden = false;
-  $("cerrar").focus();
-});
-
-$("cerrar").addEventListener("click", cerrarModal);
-$("modal").addEventListener("click", e => { if (e.target === $("modal")) cerrarModal(); });
-document.addEventListener("keydown", e => { if (e.key === "Escape") cerrarModal(); });

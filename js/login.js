@@ -1,13 +1,22 @@
-// Lógica del login (login.html). Usa js/utileria.js.
-const $ = id => document.getElementById(id);
+document.addEventListener('DOMContentLoaded', () => {
+    const formLogin = document.getElementById('loginForm');
+    const errCorreo = document.getElementById('err-login-correo');
+    const errPass = document.getElementById('err-login-pass');
 
-$("login").addEventListener("submit", e => {
-  e.preventDefault();
-  const c = validarCorreo($("correo").value), p = validarPassword($("password").value);
-  $("e-correo").textContent = c ? "" : "Escribe un correo válido, como nombre@mail.com.";
-  $("e-password").textContent = p ? "" : "Mínimo 8 caracteres con mayúscula, minúscula, número y símbolo.";
-  $("correo").classList.toggle("bad", !c);
-  $("password").classList.toggle("bad", !p);
-  $("resultado").className = "aviso" + (c && p ? " ok" : "");
-  $("resultado").textContent = c && p ? "Datos válidos: acceso concedido (demo)." : "";
+    formLogin.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const correo = document.getElementById('correoLogin').value;
+        const pass = document.getElementById('passLogin').value;
+
+        const correoValido = validarCorreo(correo);
+        const passValido = validarPassword(pass);
+
+        errCorreo.classList.toggle('active', !correoValido);
+        errPass.classList.toggle('active', !passValido);
+
+        if (correoValido && passValido) {
+            alert('Acceso autorizado. Credenciales verificadas con éxito.');
+        }
+    });
 });
