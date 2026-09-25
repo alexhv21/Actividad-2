@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Registro | utileria.js</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<main>
+  <h1>Crea tu cuenta</h1>
+
+  <form id="registro" novalidate>
+    <label for="nombre">Nombre(s)</label>
+    <input id="nombre" autocomplete="given-name"><span class="error" id="e-nombre"></span>
+    <label for="apellido">Apellido(s)</label>
+    <input id="apellido" autocomplete="family-name"><span class="error" id="e-apellido"></span>
+    <label for="correo">Correo</label>
+    <input id="correo" type="email" autocomplete="email"><span class="error" id="e-correo"></span>
+    <label for="telefono">Teléfono (10 dígitos)</label>
+    <input id="telefono" inputmode="numeric" autocomplete="tel"><span class="error" id="e-telefono"></span>
+    <label for="nacimiento">Fecha de nacimiento</label>
+    <input id="nacimiento" type="date"><span class="error" id="e-nacimiento"></span>
+    <label for="password">Contraseña</label>
+    <input id="password" type="password" autocomplete="new-password"><span class="error" id="e-password"></span>
+    <div class="acciones">
+      <button type="submit">Registrarme</button>
+      <button type="button" id="btnLogin" class="sec" disabled>Ir al login</button>
+    </div>
+    <p class="aviso" id="avisoLogin">El acceso al login se habilita solo para mayores de edad.</p>
+  </form>
+</main>
+
+<div class="overlay" id="modal" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="mTitulo">
+    <h2 id="mTitulo">Registro completado</h2>
+    <p id="mSaludo"></p>
+    <div class="edad" id="mEdad"></div>
+    <p id="mDetalle"></p>
+    <div class="acciones"><button type="button" id="cerrar">Cerrar</button></div>
+  </div>
+</div>
+
+<script src="js/utileria.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+const nombreValido = v => v.trim().split(/\s+/).every(soloLetras);
+const reglas = {
+  nombre:     v => nombreValido(v) || "Solo letras (se aceptan acentos).",
+  apellido:   v => nombreValido(v) || "Solo letras (se aceptan acentos).",
+  correo:     v => validarCorreo(v) || "Escribe un correo válido, como nombre@mail.com.",
+  telefono:   v => (validarLongitud(v, 10) && v.length === 10) || "Escribe 10 dígitos, sin espacios.",
+  nacimiento: v => (calcularEdad(v) >= 0 && calcularEdad(v) < 120) || "Elige una fecha de nacimiento válida.",
+  password:   v => validarPassword(v) || "Mínimo 8 caracteres con mayúscula, minúscula, número y símbolo."
+};
+
+function actualizarLogin() {
+  const mayor = esMayorDeEdad($("nacimiento").value);
+  $("btnLogin").disabled = !mayor;
+  $("avisoLogin").textContent = $("nacimiento").value && !mayor
+    ? "Debes ser mayor de edad para ir al login."
+    : "El acceso al login se habilita solo para mayores de edad.";
+}
+
+$("nacimiento").addEventListener("input", actualizarLogin);
+$("btnLogin").addEventListener("click", () => { if (esMayorDeEdad($("nacimiento").value)) location.href = "login.html"; });
+
+$("registro").addEventListener("submit", e => {
+  e.preventDefault();
+  let ok = true;
+  for (const campo in reglas) {
+    const r = reglas[campo]($(campo).value);
+    $("e-" + campo).textContent = r === true ? "" : r;
+    $(campo).classList.toggle("bad", r !== true);
+    if (r !== true) ok = false;
+  }
+  actualizarLogin();
+  if (!ok) return;
+  const f = $("nacimiento").value, edad = calcularEdad(f), dias = diasParaCumple(f);
+  $("mSaludo").textContent = "Hola, " + capitalizarNombre($("nombre").value + " " + $("apellido").value) + ". Tu edad es:";
+  $("mEdad").textContent = edad + " años";
+  $("mDetalle").textContent = (esMayorDeEdad(f) ? "Eres mayor de edad: ya puedes ir al login. " : "Eres menor de edad: no puedes acceder al login. ") +
+    (dias === 0 ? "¡Hoy es tu cumpleaños!" : "Faltan " + dias + " días para tu cumpleaños.");
+  $("modal").hidden = false;
+  $("cerrar").focus();
+});
+
+const cerrar = () => { $("modal").hidden = true; };
+$("cerrar").addEventListener("click", cerrar);
+$("modal").addEventListener("click", e => { if (e.target === $("modal")) cerrar(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape") cerrar(); });
+</script>
+</body>
+</html>
