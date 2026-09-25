@@ -385,7 +385,7 @@ console.log(generarNombreUsuario("Admin"));
 
 ## Link al video
 
-https://youtube.com/shorts/6GjhcfE6B1s?feature=share
+
 
 ---
 
