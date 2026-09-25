@@ -1,39 +1,57 @@
+:root {
+    /* Paleta sobria pero con carácter */
+    --bg-page: #f0fdf4;           /* Fondo verde menta muy suave */
+    --card-bg: #ffffff;           /* Fondo blanco puro para limpieza */
+    --primary: #059669;           /* Verde esmeralda principal */
+    --primary-hover: #047857;     /* Esmeralda oscuro para hover */
+    --accent: #d97706;            /* Ámbar para detalles */
+    --text-main: #064e3b;         /* Verde bosque muy oscuro para títulos */
+    --text-body: #1f2937;         /* Texto base cómodo de leer */
+    --text-muted: #6b7280;        /* Gris medio para subtítulos */
+    --border-input: #a7f3d0;      /* Borde menta pastel para inputs */
+    --border-focus: #059669;      /* Foco esmeralda */
+    --error: #b91c1c;             /* Rojo quemado para errores */
+}
+
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 body {
-    background-color: #f1f5f9;
-    color: #1e293b;
+    background-color: var(--bg-page);
+    color: var(--text-body);
+    min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 100vh;
-    padding: 20px;
+    padding: 24px 16px;
 }
 
+/* Tarjeta limpia y despejada */
 .container {
-    background: #ffffff;
-    padding: 32px;
-    border-radius: 12px;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+    background: var(--card-bg);
     width: 100%;
-    max-width: 480px;
+    max-width: 460px;
+    padding: 36px 28px;
+    border-radius: 16px;
+    border: 1px solid #d1fae5;
+    box-shadow: 0 10px 25px -5px rgba(5, 150, 105, 0.1), 0 8px 10px -6px rgba(5, 150, 105, 0.05);
 }
 
 h1 {
     font-size: 24px;
-    margin-bottom: 8px;
-    color: #0f172a;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 6px;
 }
 
 p.subtitle {
     font-size: 14px;
-    color: #64748b;
-    margin-bottom: 24px;
+    color: var(--text-muted);
+    margin-bottom: 22px;
 }
 
 .form-group {
@@ -44,33 +62,42 @@ label {
     display: block;
     font-size: 13px;
     font-weight: 600;
+    color: #374151;
     margin-bottom: 6px;
 }
 
 input {
     width: 100%;
-    padding: 10px 12px;
-    border: 1px solid #cbd5e1;
-    border-radius: 6px;
+    padding: 11px 13px;
+    background-color: #fafdfb;
+    border: 1.5px solid var(--border-input);
+    border-radius: 8px;
     font-size: 14px;
+    color: var(--text-body);
     outline: none;
-    transition: border-color 0.2s;
+    transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 input:focus {
-    border-color: #2563eb;
+    border-color: var(--border-focus);
+    background-color: #ffffff;
+    box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.15);
 }
 
 input[readonly] {
-    background-color: #f8fafc;
-    color: #475569;
-    cursor: not-allowed;
+    background-color: #ecfdf5;
+    border-color: #6ee7b7;
+    color: #065f46;
+    font-weight: 600;
+    cursor: default;
 }
 
+/* Mensajes de error */
 .error-text {
-    color: #dc2626;
+    color: var(--error);
     font-size: 12px;
-    margin-top: 4px;
+    font-weight: 500;
+    margin-top: 5px;
     display: none;
 }
 
@@ -78,43 +105,64 @@ input[readonly] {
     display: block;
 }
 
+/* Indicador de seguridad de contraseña */
 .info-text {
-    display: block;
+    display: inline-block;
     font-size: 12px;
-    margin-top: 4px;
-    font-weight: 500;
+    font-weight: 600;
+    margin-top: 5px;
+    padding: 2px 8px;
+    border-radius: 4px;
 }
 
-.seg-debil { color: #dc2626; }
-.seg-media { color: #d97706; }
-.seg-fuerte { color: #16a34a; }
+.seg-debil {
+    color: #991b1b;
+    background: #fee2e2;
+}
 
+.seg-media {
+    color: #92400e;
+    background: #fef3c7;
+}
+
+.seg-fuerte {
+    color: #065f46;
+    background: #d1fae5;
+}
+
+/* Botón con color esmeralda sólido */
 button {
     width: 100%;
-    background-color: #2563eb;
+    background-color: var(--primary);
     color: #ffffff;
     padding: 12px;
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
     margin-top: 10px;
+    transition: background-color 0.2s, transform 0.1s;
 }
 
 button:hover {
-    background-color: #1d4ed8;
+    background-color: var(--primary-hover);
+}
+
+button:active {
+    transform: scale(0.99);
 }
 
 .form-footer {
     text-align: center;
-    margin-top: 16px;
+    margin-top: 18px;
     font-size: 13px;
 }
 
 .form-footer a {
-    color: #2563eb;
+    color: var(--primary);
     text-decoration: none;
+    font-weight: 600;
 }
 
 .form-footer a:hover {
@@ -128,10 +176,11 @@ button:hover {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(15, 23, 42, 0.45);
     display: none;
     justify-content: center;
     align-items: center;
+    z-index: 100;
 }
 
 .modal-overlay.open {
@@ -140,16 +189,25 @@ button:hover {
 
 .modal-card {
     background: #ffffff;
-    padding: 24px;
-    border-radius: 8px;
+    padding: 26px 24px;
+    border-radius: 12px;
     width: 90%;
-    max-width: 400px;
+    max-width: 380px;
     text-align: center;
+    border: 1px solid #d1fae5;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15);
 }
 
 .modal-card h2 {
-    font-size: 20px;
-    margin-bottom: 12px;
+    font-size: 19px;
+    color: var(--text-main);
+    margin-bottom: 10px;
+}
+
+.modal-card p {
+    font-size: 14px;
+    color: #4b5563;
+    line-height: 1.5;
 }
 
 .modal-actions {
@@ -159,9 +217,10 @@ button:hover {
 }
 
 .btn-secondary {
-    background-color: #94a3b8;
+    background-color: #e5e7eb;
+    color: #374151;
 }
 
 .btn-secondary:hover {
-    background-color: #64748b;
+    background-color: #d1d5db;
 }
