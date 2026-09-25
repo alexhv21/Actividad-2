@@ -1,16 +1,15 @@
 :root {
-    /* Paleta sobria pero con carácter */
-    --bg-page: #f0fdf4;           /* Fondo verde menta muy suave */
-    --card-bg: #ffffff;           /* Fondo blanco puro para limpieza */
-    --primary: #059669;           /* Verde esmeralda principal */
-    --primary-hover: #047857;     /* Esmeralda oscuro para hover */
-    --accent: #d97706;            /* Ámbar para detalles */
-    --text-main: #064e3b;         /* Verde bosque muy oscuro para títulos */
-    --text-body: #1f2937;         /* Texto base cómodo de leer */
-    --text-muted: #6b7280;        /* Gris medio para subtítulos */
-    --border-input: #a7f3d0;      /* Borde menta pastel para inputs */
-    --border-focus: #059669;      /* Foco esmeralda */
-    --error: #b91c1c;             /* Rojo quemado para errores */
+    --bg-page: #f0fdf4;           
+    --card-bg: #ffffff;           
+    --primary: #059669;           
+    --primary-hover: #047857;    
+    --accent: #d97706;           
+    --text-main: #064e3b;         
+    --text-body: #1f2937;         
+    --text-muted: #6b7280;        
+    --border-input: #a7f3d0;      
+    --border-focus: #059669;      
+    --error: #b91c1c;             
 }
 
 * {
